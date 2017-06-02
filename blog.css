@@ -4,40 +4,39 @@ a, abbr, acronym, address, code,
 del, dfn, em, img, q, dl, dt, dd, ol, ul, li, tt,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td {
- margin:0;
- padding:0;
- list-style-type:none;
- text-align:left;
- text-decoration:none;
- border-bottom:none;
- font-weight:normal;
- font-style:normal;
- border:none;
- color:#111111;
- 
+  margin:0;
+  padding:0;
+  list-style-type:none;
+  text-align:left;
+  text-decoration:none;
+  border-bottom:none;
+  font-weight:normal;
+  font-style:normal;
+  border:none;
+  color:#111111;
 }
 
 body {
-    margin:0;
-    padding:0;
-    background-color: #f5f5d5 ;
-    font-family: Georgia, serif;
-    letter-spacing: -0.01em;
-    word-spacing:0.2em;
-    line-height: 1.8em;
-    font-size:62.5%;
-    color:#111111;
-    width:98%;
+  margin:0;
+  padding:0;
+  background-color: #f5f5d5 ;
+  font-family: Georgia, serif;
+  letter-spacing: -0.01em;
+  word-spacing:0.2em;
+  line-height: 1.8em;
+  font-size:62.5%;
+  color:#111111;
+  width:98%;
 }
 
 /* Container */
 #container{
-    margin: 0 auto;
-    background-color:#f5f5d5;
-    padding: 1em;
-    width:85%;
-    min-width: 780px;
-    max-width: 1260px;
+  margin: 0 auto;
+  background-color:#f5f5d5;
+  padding: 1em;
+  width:85%;
+  min-width: 780px;
+  max-width: 1260px;
 }
 
 /* Header */
@@ -49,33 +48,48 @@ body {
 #header{
   border-bottom:1px solid #d3d3d3;
   margin:1em;
-  float:left;
   height:5em;
 }
 
 /* Content */
 #content{
-    margin: 0 auto;
-    background-color:#f5f5d5;
-    padding: 1em;
-    width: 65%;
-    min-width:640px;
-    max-width:960px;
+  margin: 0 auto;
+  background-color:#f5f5d5;
+  padding: 1em;
+  min-width: 800px;
+  max-width: 1000px;
+  /* background-color: #FF0000; */
 }
 
 #content h1, h2, h3 {
-       margin:0.4em 0 0.2em 0;
-       padding: 0 0 0.2em 0;
-       color:#000000;
-       font-weight:500;
-       letter-spacing: -0.03em;
-       border-bottom:1px solid #d3d3d3;
+  margin:0.4em 0 0.2em 0;
+  padding: 0 0 0.2em 0;
+  color:#000000;
+  font-weight:500;
+  letter-spacing: -0.03em;
+  border-bottom:1px solid #d3d3d3;
 }
 
 #column01{
-    color:#005000;
+  #background-color:#202020;
+  float:left;
+  width:69%;
 }
 
 #column02{
-    color:#500000;
+  float:right;
+  width:29%;
+}
+
+/* Module */
+
+.module{
+  background-color: #DEEBF7;
+  margin-bottom:1em;
+  padding: 1em;
+  border-radius: 1em;
+}
+
+.module h2{
+  font-size:1.8em;
 }

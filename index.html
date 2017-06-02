@@ -3,9 +3,11 @@ layout: default
 title: 生命在于折腾
 ---
 <div id="header">
-    <h1>{{ page.title }}</h1>
+  <h1>{{ page.title }}</h1>
 </div>
+
 <div id="content">
+
     <div id="column01">
         <h2>我的文章</h2>
         <ul>
@@ -14,6 +16,16 @@ title: 生命在于折腾
             {% endfor %}
         </ul>
     </div>
+
     <div id="column02">
+        <div class="module-about module">
+            <h2 class="module-header">关于</h2>
+            <div class="module-content">
+                <p>
+                    <img src="{{ site.baseurl }}head.jpg" width="152" height="179" alt="I'm blind, not death.">
+                </p>
+            </div>
+        </div>
     </div>
+
 </div>
