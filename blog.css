@@ -38,7 +38,6 @@ p, li {
   line-height: 220%;
 }
 
-
 /* Container */
 #container{
   margin: 0 auto;
@@ -141,6 +140,17 @@ p, li {
 }
 
 /* doc css*/
-#content .page-meta {
+#content .page-meta * {
     color:#556677;
+}
+
+#content p{
+  margin-top:1em;
+  line-height:180%;
+  margin-left:0.8em;
+}
+
+#site-meta {
+  background-color: #AAD2F0;
+  border-radius: 1em;
 }
