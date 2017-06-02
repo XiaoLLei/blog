@@ -1,17 +1,8 @@
 #container{
-       margin: 0 auto;
-       background-color:#f5f5d5;
-       padding: 1em;
-}
-
-body.one-column #container{
-       width: 65%;
-       min-width:640px;
-       max-width:960px;
-}
-
-body.two-columns #container{
-    width:85%;
-  min-width: 780px;
-  max-width: 1260px;
+    margin: 0 auto;
+    background-color:#f5f5d5;
+    padding: 1em;
+    width: 65%;
+    min-width:640px;
+    max-width:960px;
 }
