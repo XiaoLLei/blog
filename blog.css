@@ -139,3 +139,8 @@ p, li {
 .module li{
   margin-left:1em;
 }
+
+/* doc css*/
+#content .page-meta {
+    color:#556677;
+}
