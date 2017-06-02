@@ -10,7 +10,7 @@ title: 生命在于折腾
 
     <div id="column01">
         <h3>我的文章</h3>
-        <ul>
+        <ul id="column01-doc-title">
             {% for post in site.posts %}
                 <li><span>{{ post.date | date_to_string }}</span> <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
             {% endfor %}
