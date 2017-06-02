@@ -9,10 +9,10 @@ title: 生命在于折腾
 <div id="content">
 
     <div id="column01">
-        <h2>我的文章</h2>
+        <h3>我的文章</h3>
         <ul>
             {% for post in site.posts %}
-                <li>{{ post.date | date_to_string }} <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
+                <li><span>{{ post.date | date_to_string }}</span> <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
             {% endfor %}
         </ul>
     </div>
@@ -24,6 +24,7 @@ title: 生命在于折腾
                 <p>
                     <img src="{{ site.baseurl }}/head.jpg" width="152" height="179" alt="I'm blind, not death.">
                 </p>
+                <li class="module-list-item">I'm blind, not death.</li>
             </div>
         </div>
     </div>
