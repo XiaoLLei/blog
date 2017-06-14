@@ -1,0 +1,64 @@
+---
+layout: page
+title: (二) Event Library
+---
+
+<p>
+Event Library功能和特点
+<ul>
+    <li>监听端口 listen </li>
+    <li>建立请求连接 accept</li>
+    <li>持有socket连接，并且在连接之前做non-blocking操作</li>
+    <li>利用系统支持的多路复用技术(select, poll, epoll等)来实现</li>
+</ul>
+</p>
+
+<p>
+Redis没有采用其它开源的Event Libray，而是自己开发了一套比较精简的。
+</p>
+
+<p>Redis架构图如图1所示。其中，Ae与Anet组成了Event Library，主要代码集中在ae.c、ae_epoll.c、ae_evport、ae_kqueue.c、ae_select、anet.c文件中</p>
+<p>
+    <img src="{{ site.baseurl }}/redis-architecture.jpg" width="519" height="387" alt="Redis框图">
+    图一
+</p>
+
+<p>
+其中，ae_epoll.c、ae_evport、ae_kqueue.c、ae_select分别是对epoll、evport、kqueue、select等网络IO复用模型的封装。各个封装提供统一的网络接口：
+<ul>
+    <li>aeApiCreate, 创建aeApiState</li>
+    <li>aeApiResize, 变更能支持的最大网络连接数, 如果不支持返回-1</li>
+    <li>aeApiFree, 释放网络模型对应的数据结构</li>
+    <li>aeApiAddEvent, 增加监听对象</li>
+    <li>aeApiDelEvent, 修改或者删除监听对象</li>
+    <li>aeApiPoll, 发起监听等待</li>
+    <li>aeApiName, 获取网络模型名称</li>
+</ul>
+
+其中，aeApiState对应网络模型数据结构。
+
+ae.c通过以上所说的8个接口来使用IO复用模型，另外通过宏来将决定使用具体的网络模型。代码如下：
+</p>
+
+<p>
+#ifdef HAVE_EVPORT
+#include "ae_evport.c"
+#else
+    #ifdef HAVE_EPOLL
+    #include "ae_epoll.c"
+    #else
+        #ifdef HAVE_KQUEUE
+        #include "ae_kqueue.c"
+        #else
+        #include "ae_select.c"
+        #endif
+    #endif
+#endif
+</p>
+
+<p>
+Ae除了使用底层提供的8个抽象接口来完成网络通信，同时还向上层提供了两种Event，分别是FileEvent和TimeEvent。
+对应的接口有：aeCreateFileEvent, aeDeleteFileEvent, aeCreateTimeEvent, aeDeleteTimeEvent。
+FileEvent是。
+TimeEvent是。
+</p>
