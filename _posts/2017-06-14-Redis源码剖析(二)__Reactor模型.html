@@ -19,7 +19,7 @@ Redis没有采用其它开源的Event Libray，而是自己开发了一套比较
 
 <p>Redis架构图如图1所示。其中，Ae与Anet组成了Event Library，主要代码集中在ae.c、ae_epoll.c、ae_evport、ae_kqueue.c、ae_select、anet.c文件中</p>
 <p>
-    <img src="{{ site.baseurl }}/redis-architecture.jpg" width="519" height="387" alt="Redis框图">
+    <img src="{{ site.baseurl }}/redis-architecture.jpg" width="467" height="387" alt="Redis框图">
     图一
 </p>
 
@@ -36,7 +36,9 @@ Redis没有采用其它开源的Event Libray，而是自己开发了一套比较
 </ul>
 
 其中，aeApiState对应网络模型数据结构。
+</p>
 
+<p>
 ae.c通过以上所说的8个接口来使用IO复用模型，另外通过宏来将决定使用具体的网络模型。代码如下：
 </p>
 
