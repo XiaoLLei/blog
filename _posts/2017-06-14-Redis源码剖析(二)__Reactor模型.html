@@ -61,6 +61,123 @@ ae.c通过以上所说的8个接口来使用IO复用模型，另外通过宏来�
 <p>
 Ae除了使用底层提供的8个抽象接口来完成网络通信，同时还向上层提供了两种Event，分别是FileEvent和TimeEvent。
 对应的接口有：aeCreateFileEvent, aeDeleteFileEvent, aeCreateTimeEvent, aeDeleteTimeEvent。
-FileEvent是。
-TimeEvent是。
+FileEvent是对应一个网络连接。
+TimeEvent是对应一个定时任务。Redis的很多后台工作都是通过定时任务来分批进行的。
+
+以下是FileEvent和TimeEvent对应的数据结构
+
+/* File event structure */
+typedef struct aeFileEvent {
+    int mask; /* one of AE_(READABLE|WRITABLE) */
+    aeFileProc *rfileProc;
+    aeFileProc *wfileProc;
+    void *clientData;
+} aeFileEvent;
+
+/* Time event structure */
+typedef struct aeTimeEvent {
+    long long id; /* time event identifier. */
+    long when_sec; /* seconds */
+    long when_ms; /* milliseconds */
+    aeTimeProc *timeProc;
+    aeEventFinalizerProc *finalizerProc;
+    void *clientData;
+    struct aeTimeEvent *next;
+} aeTimeEvent;
+
+两种event都有各自的回调函数，在回调函数中完成实际的工作。例如，监听端口的FileEvent对应的回调函数就是acceptTcpHandler(定义在networking.c文件中)。
+
+由于FileEvent有读写两种状态，所以相应的有两个回调函数。rfileProc对应读回调，wfileProc对应写回调。
+
+TimeEvent也有两个回调，timeProc和finalizerProc。timeProc是每次时钟到达是需要执行的回调，finalizerProc是TimeEvent被移除之前需要做的回调。当前Redis的finalizerProc只用于一些统计分析。
+
+另外，我们会发现aeTimeEvent中有一个取名为next的aeTimeEvent的指针，由此可以推断出TimeEvent很有可能是以链表的形式来存储的。接下来，我们分析一下aeEventLoop这个Ae核心数据结构，去求证我们的推断。
+
+</p>
+
+<p>
+aeEventLoop是整个Ae的核心数据结构，承载着整个业务的驱动。所以围绕aeEventLoop，封装了一系列的函数。下面通过展开aeEventLoop数据结构，来逐步解析展开Ae的内部实现。
+</p>
+
+<p>
+/* State of an event based program */
+typedef struct aeEventLoop {
+    int maxfd;   /* highest file descriptor currently registered */
+    int setsize; /* max number of file descriptors tracked */
+    long long timeEventNextId;
+    time_t lastTime;     /* Used to detect system clock skew */
+    aeFileEvent *events; /* Registered events */
+    aeFiredEvent *fired; /* Fired events */
+    aeTimeEvent *timeEventHead;
+    int stop;
+    void *apidata; /* This is used for polling API specific data */
+    aeBeforeSleepProc *beforesleep;
+} aeEventLoop;
+</p>
+
+<p>
+maxfd : 当前注册fd中，最大的那个fd
+setsize : 最大能同时监听的fd数量
+
+setsize很好理解，就是设置一个能支持的最大fd数量。
+maxfd的存在意义并不是很大，主要起到两个作用：
+1）作为标识符，判断当前是否存在监听的fd（maxfd初始化为-1）
+2）Ae提供了aeResizeSetSize函数用来修改最大同时监听的fd数量，也就是setsize的值。而当减小setsize值时，需要根据maxfd来判断新设置的setsize是否合法（setsize必须大于maxfd）
+
+/* Resize the maximum set size of the event loop.
+ * If the requested set size is smaller than the current set size, but
+ * there is already a file descriptor in use that is >= the requested
+ * set size minus one, AE_ERR is returned and the operation is not
+ * performed at all.
+ *
+ * Otherwise AE_OK is returned and the operation is successful. */
+int aeResizeSetSize(aeEventLoop *eventLoop, int setsize) {
+    ......
+    if (eventLoop->maxfd >= setsize) return AE_ERR;
+    ......
+}
+
+至于为什么setsize必须大于maxfd，就需要了解events的结构了。
+
+</p>
+
+<p>
+aeEventLoop中有三个与event相关的成员，分别为
+aeFileEvent *events;        /* 用于存储注册的file event */
+aeFiredEvent *fired;        /* 用于存储已经被触发的file event(对应fd上有可读或者可写的数据) */
+aeTimeEvent *timeEventHead; /* 用于存储time event，从名称中可以再次看出很有可能是一个链表 */
+
+通过查看aeEventLoop的构造函数aeCreateEventLoop，来看一下三者分别是什么。
+
+aeEventLoop *aeCreateEventLoop(int setsize) {
+    aeEventLoop *eventLoop;
+    int i;
+
+    if ((eventLoop = zmalloc(sizeof(*eventLoop))) == NULL) goto err;
+    eventLoop->events = zmalloc(sizeof(aeFileEvent)*setsize);
+    eventLoop->fired = zmalloc(sizeof(aeFiredEvent)*setsize);
+    if (eventLoop->events == NULL || eventLoop->fired == NULL) goto err;
+    eventLoop->setsize = setsize;
+    eventLoop->lastTime = time(NULL);
+    eventLoop->timeEventHead = NULL;
+    eventLoop->timeEventNextId = 0;
+    eventLoop->stop = 0;
+    eventLoop->maxfd = -1;
+    eventLoop->beforesleep = NULL;
+    if (aeApiCreate(eventLoop) == -1) goto err;
+    /* Events with mask == AE_NONE are not set. So let's initialize the
+     * vector with it. */
+    for (i = 0; i < setsize; i++)
+        eventLoop->events[i].mask = AE_NONE;
+    return eventLoop;
+
+err:
+    if (eventLoop) {
+        zfree(eventLoop->events);
+        zfree(eventLoop->fired);
+        zfree(eventLoop);
+    }
+    return NULL;
+}
+
 </p>
