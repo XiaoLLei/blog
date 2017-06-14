@@ -137,7 +137,7 @@ int aeResizeSetSize(aeEventLoop *eventLoop, int setsize) {
     ......
 }
 
-至于为什么setsize必须大于maxfd，就需要了解events的结构了。
+问题1: 为什么setsize必须大于maxfd？
 
 </p>
 
@@ -180,4 +180,45 @@ err:
     return NULL;
 }
 
+从aeCreateEventLoop中可以看出，events和fired分别是setsize大小的aeFileEvent数组和aeFiredEvent数组。而timeEventHead初始化为NULL，所以time event一定是通过链表的形式组织起来。通过阅读aeCreateTimeEvent函数可知，time event每次创建都插入到链表的头部。
+
+long long aeCreateTimeEvent(aeEventLoop *eventLoop, long long milliseconds,
+        aeTimeProc *proc, void *clientData,
+        aeEventFinalizerProc *finalizerProc)
+{
+    long long id = eventLoop->timeEventNextId++;
+    aeTimeEvent *te;
+
+    te = zmalloc(sizeof(*te));
+    if (te == NULL) return AE_ERR;
+    te->id = id;
+    aeAddMillisecondsToNow(milliseconds,&te->when_sec,&te->when_ms);
+    te->timeProc = proc;
+    te->finalizerProc = finalizerProc;
+    te->clientData = clientData;
+    te->next = eventLoop->timeEventHead;
+    eventLoop->timeEventHead = te;
+    return id;
+}
+
+问题2: 为什么file event和fire event采用数组的方式来管理数据，而time event采用链表？
+
 </p>
+
+<p>
+file event和time event是Ae抽象出来的两种event，那么fire event是什么呢？先看fire event的数据结构。
+</p>
+
+<p>
+/* A fired event */
+typedef struct aeFiredEvent {
+    int fd;     /* 已经被触发的文件描述符 */
+    int mask;   /* 表示是读还是写事件 */
+} aeFiredEvent;
+</p>
+
+<p>
+
+</p>
+
+
